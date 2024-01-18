@@ -1,0 +1,56 @@
+<html>
+    <head></head>
+    <body>
+        <h1>CORVIN</h1>
+        <div id="map"></div>
+    </body>
+</html>
+
+<script type="text/javascript">
+    const evtSource = new EventSource("http://localhost:8080/monitor");
+
+    evtSource.open = (event) => {
+        console.log("conectado", event)
+    };
+
+    evtSource.onmessage = (event) => {
+        console.log("receive", event.data)
+        const crow = JSON.parse(event.data);
+
+        console.log(crow)
+        addCrowElement(crow);
+    };
+
+    evtSource.onerror = (err) => {
+        console.error("EventSource failed:", err);
+    };
+
+    function addCrowElement(crow) {
+        var element = document.getElementById(crow.uuid);
+        if (!element) {
+            element = document.createElement("div")
+            element.setAttribute("id", crow.uuid);
+            const map = document.getElementById("map");
+            map.appendChild(element);
+        }
+
+        element.innerText = ''
+
+        const lat = document.createElement("span");
+        lat.innerText = crow.latitude + " - " ;
+
+        const long = document.createElement("span");
+        long.innerText = crow.longitude + " - ";
+
+        const nome = document.createElement("span");
+        nome.innerText = crow.nome;
+
+        element.appendChild(lat);
+        element.appendChild(long);
+        element.appendChild(nome);
+
+
+
+
+    }
+</script>
