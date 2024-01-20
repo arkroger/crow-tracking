@@ -3,7 +3,9 @@ package br.com.rogeriosouza.crowtracking.monitor.dto;
 public class AddCrowRequest {
 
     private String nome;
-    private AddCrowDestinoRequest destino;
+
+    private AddCrowPosicaoRequest origem;
+    private AddCrowPosicaoRequest destino;
 
     public String getNome() {
         return nome;
@@ -13,11 +15,19 @@ public class AddCrowRequest {
         this.nome = nome;
     }
 
-    public AddCrowDestinoRequest getDestino() {
+    public AddCrowPosicaoRequest getOrigem() {
+        return origem;
+    }
+
+    public void setOrigem(AddCrowPosicaoRequest origem) {
+        this.origem = origem;
+    }
+
+    public AddCrowPosicaoRequest getDestino() {
         return destino;
     }
 
-    public void setDestino(AddCrowDestinoRequest destino) {
+    public void setDestino(AddCrowPosicaoRequest destino) {
         this.destino = destino;
     }
 }

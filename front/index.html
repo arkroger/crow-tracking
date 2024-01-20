@@ -73,7 +73,7 @@
 
             console.log(crow);
             addCrowElement(crow);
-            addMarker(crow.uuid, crow.latitude, crow.longitude, crow.nome)
+            addMarker(crow.uuid, crow.localizacao.latitude, crow.localizacao.longitude, crow.nome)
         };
 
         evtSource.onerror = (err) => {
@@ -110,10 +110,10 @@
         element.innerText = ''
 
         const lat = document.createElement("span");
-        lat.innerText = crow.latitude + " - " ;
+        lat.innerText = crow.localizacao.latitude + " - " ;
 
         const long = document.createElement("span");
-        long.innerText = crow.longitude + " - ";
+        long.innerText = crow.localizacao.longitude + " - ";
 
         const nome = document.createElement("span");
         nome.innerText = crow.nome;

@@ -2,25 +2,26 @@ package br.com.rogeriosouza.crowtracking.monitor.model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-public class Destino implements Serializable {
+public class Posicao implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -974098542383702058L;
 
-    private final double latitude;
-    private final double longitude;
+    private final BigDecimal latitude;
+    private final BigDecimal longitude;
 
-    public Destino(double latitude, double longitude) {
+    public Posicao(BigDecimal latitude, BigDecimal longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public double getLatitude() {
+    public BigDecimal getLatitude() {
         return latitude;
     }
 
-    public double getLongitude() {
+    public BigDecimal getLongitude() {
         return longitude;
     }
 }

@@ -2,7 +2,7 @@ package br.com.rogeriosouza.crowtracking.simulator;
 
 import br.com.rogeriosouza.crowtracking.EventHelper;
 import br.com.rogeriosouza.crowtracking.monitor.model.Crow;
-import br.com.rogeriosouza.crowtracking.monitor.model.Destino;
+import br.com.rogeriosouza.crowtracking.monitor.model.Posicao;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 @ApplicationScoped
 public class SimulatorService {
@@ -19,8 +18,8 @@ public class SimulatorService {
 
     private final EventBus eventBus;
 
-    private static final int VARIACAO_MIN = -20;
-    private static final int VARIACAO_MAX = 50;
+    private static final int VARIACAO_MIN = 10;
+    private static final int VARIACAO_MAX = 40;
 
     public SimulatorService(FakeDatabase fakeDatabase, EventBus eventBus) {
         this.fakeDatabase = fakeDatabase;
@@ -31,24 +30,32 @@ public class SimulatorService {
         List<Crow> crows = fakeDatabase.getCrows();
 
         //FIXME REMOVER
-        if (crows.isEmpty()) {
-            crows.add(new Crow(UUID.randomUUID(), "Jubileu", -23.4409067, -46.7381877,
-                    new Destino(400L, 500L)
-            ));
-        }
+//        if (crows.isEmpty()) {
+//            crows.add(new Crow(
+//                    UUID.randomUUID(),
+//                    "Jubileu",
+//                    new Posicao(BigDecimal.valueOf(-23.4409067), BigDecimal.valueOf(-46.7381877)),
+//                    new Posicao(BigDecimal.valueOf(-23.538805), BigDecimal.valueOf(-46.681260))
+//            ));
+//        }
 
         crows.forEach(crow -> {
-            crow.setLatitude(crow.getLatitude() + getVariacao());
-            crow.setLongitude(crow.getLongitude() + getVariacao());
+            double variacao = getVariacao(crow.getLocalizacao(), crow.getDestino());
+            crow.atualizarLocalizacao(
+                    PosicaoHelper.proximaLocalizacao(crow.getLocalizacao(), crow.getDestino(), variacao));
         });
         crows.forEach(crow -> this.eventBus.publish(EventHelper.ENVIA_POSICAO, crow));
     }
 
-    private double getVariacao() {
+    private double getVariacao(Posicao localizacao, Posicao destino) {
         int variacao = new Random()
                 .ints(VARIACAO_MIN, VARIACAO_MAX)
                 .findFirst()
                 .getAsInt();
+
+        if (localizacao.getLatitude().compareTo(destino.getLatitude()) > 0) {
+            return new BigDecimal(variacao * -1).divide(new BigDecimal(10000)).doubleValue();
+        }
 
         return new BigDecimal(variacao).divide(new BigDecimal(10000)).doubleValue();
 
