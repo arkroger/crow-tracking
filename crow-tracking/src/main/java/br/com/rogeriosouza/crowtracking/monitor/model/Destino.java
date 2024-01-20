@@ -8,19 +8,19 @@ public class Destino implements Serializable {
     @Serial
     private static final long serialVersionUID = -974098542383702058L;
 
-    private final Long latitude;
-    private final Long longitude;
+    private final double latitude;
+    private final double longitude;
 
-    public Destino(Long latitude, Long longitude) {
+    public Destino(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public Long getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public Long getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 }

@@ -1,36 +1,109 @@
 <html>
-    <head></head>
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+              crossorigin=""/>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+                crossorigin=""></script>
+        <script src="AnimatedMarker.js"></script>
+        <style>
+            #map { height: 80%; }
+        </style>
+    </head>
     <body>
         <h1>CORVIN</h1>
         <div id="map"></div>
+        <div id="log"></div>
     </body>
 </html>
 
+
+
 <script type="text/javascript">
-    const evtSource = new EventSource("http://localhost:8080/monitor");
 
-    evtSource.open = (event) => {
-        console.log("conectado", event)
+    const optionsNavigator = {
+        enableHighAccuracy: true,
+        timeout: 1000,
+        maximumAge: 0,
     };
 
-    evtSource.onmessage = (event) => {
-        console.log("receive", event.data)
-        const crow = JSON.parse(event.data);
+    const icon = L.icon({
+        iconSize: [50, 50],
+        iconUrl:
+            "https://images.vexels.com/media/users/3/260938/isolated/lists/fb69cbfbe9d5be3a276c4b5d7f97074e-pa-ssaro-azul-corvo.png",
+    });
 
-        console.log(crow)
-        addCrowElement(crow);
-    };
+    const markers = new Map();
+    var mapObject;
 
-    evtSource.onerror = (err) => {
-        console.error("EventSource failed:", err);
-    };
+    function inicializarMapa(lat, lng) {
+        mapObject = L.map('map').setView([lat, lng], 13);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(mapObject);
+    }
+
+    function addMarker(uuid, lat, lng, name) {
+        if (markers.has(uuid)) {
+            markers.get(uuid).setLatLng([lat, lng])
+        } else {
+            markers.set(
+                uuid,
+                L.animatedMarker([[lat, lng]], {icon: icon, autoStart: true})
+                    .addTo(mapObject)
+                    .bindPopup(name)
+            );
+        }
+    }
+
+    function inicializarSSE() {
+        const evtSource = new EventSource("http://localhost:8080/monitor");
+
+        evtSource.open = (event) => {
+            console.log("conectado", event)
+        };
+
+        evtSource.onmessage = (event) => {
+            console.log("receive", event.data)
+            const crow = JSON.parse(event.data);
+
+            console.log(crow);
+            addCrowElement(crow);
+            addMarker(crow.uuid, crow.latitude, crow.longitude, crow.nome)
+        };
+
+        evtSource.onerror = (err) => {
+            console.error("EventSource failed:", err);
+        };
+    }
+
+
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        inicializarMapa(lat, lng);
+        inicializarSSE();
+    }, (erro) => {
+
+        console.log(erro);
+
+        inicializarMapa(-23.4409067, -46.7381877);
+        inicializarSSE();
+
+    }, optionsNavigator);
+
 
     function addCrowElement(crow) {
         var element = document.getElementById(crow.uuid);
         if (!element) {
             element = document.createElement("div")
             element.setAttribute("id", crow.uuid);
-            const map = document.getElementById("map");
+            const map = document.getElementById("log");
             map.appendChild(element);
         }
 
@@ -48,9 +121,5 @@
         element.appendChild(lat);
         element.appendChild(long);
         element.appendChild(nome);
-
-
-
-
     }
 </script>

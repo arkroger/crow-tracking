@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
-import java.util.Random;
 import java.util.UUID;
 
 @Path("teste")
@@ -20,13 +19,11 @@ public class TesteController {
     @POST
     public void add(AddCrowRequest addCrowRequest) {
 
-        Random random = new Random();
-
         Crow crow = new Crow(
                 UUID.randomUUID(),
                 addCrowRequest.getNome(),
-                Long.valueOf(String.valueOf(random.nextInt())),
-                Long.valueOf(String.valueOf(random.nextInt())),
+                addCrowRequest.getDestino().getLatitude(),
+                addCrowRequest.getDestino().getLongitude(),
                 new Destino(addCrowRequest.getDestino().getLatitude(), addCrowRequest.getDestino().getLongitude())
         );
 

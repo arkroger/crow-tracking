@@ -1,22 +1,22 @@
 package br.com.rogeriosouza.crowtracking.monitor.dto;
 
 public class AddCrowDestinoRequest {
-    private Long latitude;
-    private Long longitude;
+    private double latitude;
+    private double longitude;
 
-    public Long getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Long latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public Long getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Long longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 }

@@ -9,11 +9,11 @@ public class Crow implements Serializable {
 
     private final UUID uuid;
     private final String nome;
-    private Long latitude;
-    private Long longitude;
+    private double latitude;
+    private double longitude;
     private final Destino destino;
 
-    public Crow(UUID uuid, String nome, Long latitude, Long longitude, Destino destino) {
+    public Crow(UUID uuid, String nome, double latitude, double longitude, Destino destino) {
         this.uuid = uuid;
         this.nome = nome + " " + uuid;
         this.latitude = latitude;
@@ -29,11 +29,11 @@ public class Crow implements Serializable {
         return nome;
     }
 
-    public Long getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public Long getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
@@ -41,11 +41,11 @@ public class Crow implements Serializable {
         return destino;
     }
 
-    public void setLatitude(Long latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public void setLongitude(Long longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 }
