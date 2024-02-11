@@ -47,15 +47,15 @@
         }).addTo(mapObject);
     }
 
-    function addMarker(uuid, lat, lng, name) {
+    function addMarker(uuid, lat, lng, nome) {
         if (markers.has(uuid)) {
-            markers.get(uuid).setLatLng([lat, lng])
+            markers.get(uuid).setLatLng([lat, lng]).bindPopup(nome);
         } else {
             markers.set(
                 uuid,
                 L.animatedMarker([[lat, lng]], {icon: icon, autoStart: true})
                     .addTo(mapObject)
-                    .bindPopup(name)
+                    .bindPopup(nome)
             );
         }
     }
@@ -68,12 +68,12 @@
         };
 
         evtSource.onmessage = (event) => {
-            console.log("receive", event.data)
+            // console.log("receive", event.data)
             const crow = JSON.parse(event.data);
 
             console.log(crow);
             addCrowElement(crow);
-            addMarker(crow.uuid, crow.localizacao.latitude, crow.localizacao.longitude, crow.nome)
+            addMarker(crow.uuid, crow.localizacao.latitude, crow.localizacao.longitude, this.getNome(crow))
         };
 
         evtSource.onerror = (err) => {
@@ -81,6 +81,20 @@
         };
     }
 
+    function getNome(crow) {
+        return `<strong>${crow.nome}</strong> ${this.getStatus(crow)}<br/>
+                    Restante: ${this.getDistancia(crow.distancia.restante)}<br/>
+                    Percorrida: ${this.getDistancia(crow.distancia.percorrida)}`
+    }
+
+    function getDistancia(distancia) {
+
+        if (distancia >= 1) {
+            return distancia + " km"
+        }
+
+        return  distancia * 1000 + " m"
+    }
 
 
     navigator.geolocation.getCurrentPosition((position) => {
@@ -91,7 +105,6 @@
     }, (erro) => {
 
         console.log(erro);
-
         inicializarMapa(-23.4409067, -46.7381877);
         inicializarSSE();
 
@@ -118,8 +131,25 @@
         const nome = document.createElement("span");
         nome.innerText = crow.nome;
 
+        const status = document.createElement("span");
+        status.innerText = " - " + this.getStatus(crow);
+
         element.appendChild(lat);
         element.appendChild(long);
         element.appendChild(nome);
+        element.append(status);
+
+    }
+
+    function getStatus(crow) {
+        if (crow.chegou) {
+            return "CHEGOU";
+        } else if (crow.pouso) {
+            return "POUSANDO";
+        } else if (crow.iniciandoVoo) {
+            return "INICIANDO VOO"
+        }
+
+        return "VOANDO";
     }
 </script>

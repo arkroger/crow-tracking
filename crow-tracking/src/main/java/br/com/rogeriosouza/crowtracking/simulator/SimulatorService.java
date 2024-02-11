@@ -18,8 +18,11 @@ public class SimulatorService {
 
     private final EventBus eventBus;
 
-    private static final int VARIACAO_MIN = 10;
-    private static final int VARIACAO_MAX = 40;
+    private static final int VARIACAO_MIN = 35;
+    private static final int VARIACAO_MAX = 60;
+
+    private static final int VARIACAO_MIN_DECOLAGEM_POUSO = 1;
+    private static final int VARIACAO_MAX_DECOLAGEM_POUSO = 3;
 
     public SimulatorService(FakeDatabase fakeDatabase, EventBus eventBus) {
         this.fakeDatabase = fakeDatabase;
@@ -29,31 +32,42 @@ public class SimulatorService {
     public void gerarPosicao() {
         List<Crow> crows = fakeDatabase.getCrows();
 
-        //FIXME REMOVER
-//        if (crows.isEmpty()) {
-//            crows.add(new Crow(
-//                    UUID.randomUUID(),
-//                    "Jubileu",
-//                    new Posicao(BigDecimal.valueOf(-23.4409067), BigDecimal.valueOf(-46.7381877)),
-//                    new Posicao(BigDecimal.valueOf(-23.538805), BigDecimal.valueOf(-46.681260))
-//            ));
-//        }
+//        FIXME REMOVER
+        if (crows.isEmpty()) {
+            crows.add(new Crow(
+                    UUID.randomUUID(),
+                    "Jubileu" ,
+                    new Posicao(BigDecimal.valueOf(-23.4409067), BigDecimal.valueOf(-46.7381877)),
+                    new Posicao(BigDecimal.valueOf(-23.538805), BigDecimal.valueOf(-46.681260)))
+            );
+        }
 
         crows.forEach(crow -> {
-            double variacao = getVariacao(crow.getLocalizacao(), crow.getDestino());
-            crow.atualizarLocalizacao(
-                    PosicaoHelper.proximaLocalizacao(crow.getLocalizacao(), crow.getDestino(), variacao));
+            if (!crow.isChegou()) {
+                double variacao = getVariacao(crow);
+                crow.atualizarLocalizacao(
+                        PosicaoHelper.proximaLocalizacao(crow.getLocalizacao(), crow.getDestino(), variacao));
+            }
         });
         crows.forEach(crow -> this.eventBus.publish(EventHelper.ENVIA_POSICAO, crow));
     }
 
-    private double getVariacao(Posicao localizacao, Posicao destino) {
-        int variacao = new Random()
-                .ints(VARIACAO_MIN, VARIACAO_MAX)
-                .findFirst()
-                .getAsInt();
+    private double getVariacao(Crow crow) {
+        int variacao;
+        if (crow.isPouso() || crow.isIniciandoVoo()) {
+            variacao = new Random()
+                    .ints(VARIACAO_MIN_DECOLAGEM_POUSO, VARIACAO_MAX_DECOLAGEM_POUSO)
+                    .findFirst()
+                    .getAsInt();
+        } else {
+            variacao = new Random()
+                    .ints(VARIACAO_MIN, VARIACAO_MAX)
+                    .findFirst()
+                    .getAsInt();
+        }
 
-        if (localizacao.getLatitude().compareTo(destino.getLatitude()) > 0) {
+
+        if (crow.getLocalizacao().getLatitude().compareTo(crow.getDestino().getLatitude()) > 0) {
             return new BigDecimal(variacao * -1).divide(new BigDecimal(10000)).doubleValue();
         }
 
